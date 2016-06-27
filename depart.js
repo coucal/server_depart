@@ -16,7 +16,7 @@ var Record     = require('./app/models/canton');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 8080;        // set our port
+var port = process.env.PORT || 80;        // set our port
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -26,6 +26,9 @@ var router = express.Router();              // get an instance of the express Ro
 router.use(function(req, res, next) {
     // do logging
     console.log('Something is happening.');
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
     next(); // make sure we go to the next routes and don't stop here
 });
 
@@ -46,7 +49,6 @@ router.route('/canton/')
         Record.find(function(err, records) {
             if (err)
                 res.send(err);
-
             res.json(records);
         });
     });
@@ -57,7 +59,7 @@ router.route('/cantons/:coddpt')
 
     // get the bear with that id (accessed at GET http://localhost:8080/api/bears/:bear_id)
 
-    .get(function(req, res) {
+    .get(function(req, res,next) {
         Record.aggregate([
             {$match: {
                 coddpt:Number(req.params.coddpt)
@@ -79,7 +81,6 @@ router.route('/cantons/:coddpt')
             if (err) {
                 res.send(err);
             }
-            console.log(result);
             res.json(result);
         });
     });
@@ -103,7 +104,6 @@ router.route('/resultats/:tour/:coddpt/:canton_id')
             if (err) {
                 res.send(err);
             }
-            console.log(result);
             res.json(result);
         });
     });
@@ -115,5 +115,5 @@ app.use('/depart', router);
 
 // START THE SERVER
 // =============================================================================
-app.listen(port);
+app.listen(port,"94.23.176.119");
 console.log('Magic happens on port ' + port);
