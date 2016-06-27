@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Angular menu</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+  </head>
+  <body>
+    <div ng-app="stateapp" ng-controller="statecontroller">
+      <select>
+        <option ng-repeat="x in states" value="{{ x.id}}">{{x.value}}</option>
+      </select>
+      <script>
+      console.log("Angular");
+        var app=angular.module('stateapp',[]);
+        app.controller('statecontroller',['$scope','$http',function($scope,$http) {
+          console.log("scope");
+          $http.get("http://192.168.1.43/States_JsonData.php").then(function(response) {
+            console.log("response");
+            $scope.states=response;
+          },function(err) {
+            console.log(err);
+          });
+        }]);
+      </script>
+  </body>
+</html>
