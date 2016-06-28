@@ -17,6 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 var port = process.env.PORT || 80;        // set our port
+var ip="94.23.176.119"
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -24,17 +25,15 @@ var router = express.Router();              // get an instance of the express Ro
 
 // middleware to use for all requests
 router.use(function(req, res, next) {
-    // do logging
-    console.log('Something is happening.');
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    //res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next(); // make sure we go to the next routes and don't stop here
 });
 
 // test route to make sure everything is working (accessed at GET http://localhost:8080/api)
 router.get('/', function(req, res) {
-    res.json({ message: 'hooray! welcome to our api!' });
+    res.json({ message: 'API Resultat Départementales 2015' });
 });
 
 // more routes for our API will happen here
@@ -108,6 +107,33 @@ router.route('/resultats/:tour/:coddpt/:canton_id')
         });
     });
 
+    router.route('/burvot/:tour/:coddpt/:codcan')
+
+        // get the bear with that id (accessed at GET http://localhost:8080/api/bears/:bear_id)
+
+        .get(function(req, res) {
+          Record.aggregate([
+              { $match: {
+                  codcan: Number(req.params.canton_id),
+                  numtour: Number(req.params.tour),
+                  coddpt: Number(req.params.coddpt),
+                  codcan: Number(req.params.codcan)
+              }},
+              { $group: {
+                  _id: "$codburvot",
+              }},
+              { $project: {
+                codburvot:"$_id",
+                _id:0
+              }}
+
+            ], function (err, result) {
+                if (err) {
+                    res.send(err);
+                }
+                res.json(result);
+            });
+        });
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
@@ -115,5 +141,5 @@ app.use('/depart', router);
 
 // START THE SERVER
 // =============================================================================
-app.listen(port,"94.23.176.119");
-console.log('Magic happens on port ' + port);
+app.listen(port,ip);
+console.log('depart started on ' +ip+":"+ port);
