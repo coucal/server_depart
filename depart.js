@@ -57,83 +57,104 @@ router.route('/canton/')
 router.route('/cantons/:coddpt')
 
     // get the bear with that id (accessed at GET http://localhost:8080/api/bears/:bear_id)
-
-    .get(function(req, res,next) {
-        Record.aggregate([
-            {$match: {
-                coddpt:Number(req.params.coddpt)
-              }
-            },
-            { $group : {
-              _id :{
-                libcan:"$libcan",
-                codcan:"$codcan"
-              }
+.get(function(req, res, next) {
+    Record.aggregate([{
+        $match: {
+            coddpt: Number(req.params.coddpt)
+        }
+    }, {
+        $group: {
+            _id: {
+                libcan: "$libcan",
+                codcan: "$codcan"
             }
-          },
-          { $project: {
-            libelle:"$_id.libcan",
-            code : "$_id.codcan",
-            _id:0
-          }}
-        ], function (err, result) {
-            if (err) {
-                res.send(err);
-            }
-            res.json(result);
-        });
+        }
+    }, {
+        $project: {
+            libelle: "$_id.libcan",
+            code: "$_id.codcan",
+            _id: 0
+        }
+    }], function(err, result) {
+        if (err) {
+            res.send(err);
+        }
+        res.json(result);
     });
+});
 
 router.route('/resultats/:tour/:coddpt/:canton_id')
 
-    // get the bear with that id (accessed at GET http://localhost:8080/api/bears/:bear_id)
+// get the bear with that id (accessed at GET http://localhost:8080/api/bears/:bear_id)
 
-    .get(function(req, res) {
-        Record.aggregate([
-            { $match: {
-                codcan: Number(req.params.canton_id),
-                numtour: Number(req.params.tour),
-                coddpt: Number(req.params.coddpt)
-            }},
-            { $group: {
-                _id: "$liblisext",
-                total: { $sum: "$nbrvoix"  }
-            }}
-        ], function (err, result) {
-            if (err) {
-                res.send(err);
-            }
-            res.json(result);
-        });
-    });
-
-    router.route('/burvot/:tour/:coddpt/:codcan')
-
-        // get the bear with that id (accessed at GET http://localhost:8080/api/bears/:bear_id)
-
-        .get(function(req, res) {
-          Record.aggregate([
-              { $match: {
-                  codcan: Number(req.params.canton_id),
-                  numtour: Number(req.params.tour),
-                  coddpt: Number(req.params.coddpt),
-                  codcan: Number(req.params.codcan)
-              }},
-              { $group: {
-                  _id: "$codburvot",
-              }},
-              { $project: {
-                codburvot:"$_id",
-                _id:0
-              }}
-
-            ], function (err, result) {
+.get(function(req, res) {
+    Record.aggregate([{
+                $match: {
+                    codcan: Number(req.params.canton_id),
+                    numtour: Number(req.params.tour),
+                    coddpt: Number(req.params.coddpt)
+                }
+              }, {
+                $group: {
+                    _id: {
+                        lib: "$liblisext",
+                        part: "$codnua"
+                    },
+                    totalV: {
+                        $sum: "$nbrvoix"
+                    },
+                    totalE: {
+                        $sum: "$nbrexp"
+                    }
+                  }
+                }, {
+                $project: {
+                    liblisext: "$_id.lib",
+                    codnua: "$_id.part",
+                    nbrvoix: "$totalV",
+                    pourcent: {
+                        $divide: ["$totalV", "$totalE"]
+                    },
+                    _id: 0
+                  }
+                }],
+            function(err, result) {
                 if (err) {
                     res.send(err);
                 }
                 res.json(result);
             });
-        });
+    });
+
+router.route('/burvot/:tour/:coddpt/:codcan')
+
+// get the bear with that id (accessed at GET http://localhost:8080/api/bears/:bear_id)
+
+.get(function(req, res) {
+            Record.aggregate([{
+                    $match: {
+                        codcan: Number(req.params.canton_id),
+                        numtour: Number(req.params.tour),
+                        coddpt: Number(req.params.coddpt),
+                        codcan: Number(req.params.codcan)
+                    }
+                }, {
+                    $group: {
+                        _id: "$codburvot",
+                    }
+                }, {
+                    $project: {
+                        codburvot: "$_id",
+                        _id: 0
+                    }
+                }
+
+            ], function(err, result) {
+                if (err) {
+                    res.send(err);
+                }
+                res.json(result);
+            });        });
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
