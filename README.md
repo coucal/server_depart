@@ -8,6 +8,4 @@ Serveur d'API open data
 * creation service node_depart (on aurait pu utiliser pm2)
 
 ## Todo
-- resultat détaillé par BV
-- liste candidats du canton
 - nettoyer les log
